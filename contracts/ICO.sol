@@ -1,9 +1,8 @@
 
-pragma solidity ^0.4.11;
+pragma solidity ^0.4.4;
 
-import "./PreICO.sol";
-import "./SNM.sol";
-import "./installed/token/ERC20.sol";
+import "./ZenToken.sol";
+import "./zeppelin/token/ERC20.sol";
 
 
 contract ICO {
@@ -11,16 +10,16 @@ contract ICO {
   // Constants
   // =========
 
-  uint public constant TOKEN_PRICE_1 = 8000; // SNM per ETH
+  uint public constant TOKEN_PRICE_1 = 8000; // ZEN per ETH
   uint public constant TOKENS_FOR_SALE = 331360000 * 1e18;
-  uint public constant SNM_PER_SPT = 4; // Migration rate
+  // uint public constant ZEN_PER_SPT = 4; // Migration rate
 
 
   // Events
   // ======
 
-  event ForeignBuy(address holder, uint snmValue, string txHash);
-  event Migrate(address holder, uint snmValue);
+  event ForeignBuy(address holder, uint zenValue, string txHash);
+  event Migrate(address holder, uint zenValue);
   event RunIco();
   event PauseIco();
   event FinishIco(address teamFund, address ecosystemFund, address bountyFund);
@@ -29,8 +28,7 @@ contract ICO {
   // State variables
   // ===============
 
-  PreICO preICO;
-  ZEN public zen;
+  ZenToken public zen;
 
   address public team;
   address public tradeRobot;
@@ -46,9 +44,8 @@ contract ICO {
   // Constructor
   // ===========
 
-  function ICO(address _team, address _preICO, address _tradeRobot) {
+  function ICO(address _team, address _tradeRobot) {
     zen = new ZenToken(this);
-    preICO = PreICO(_preICO);
     team = _team;
     tradeRobot = _tradeRobot;
   }
@@ -67,7 +64,7 @@ contract ICO {
   function buyFor(address _investor) public payable {
     require(icoState == IcoState.Running);
     require(msg.value > 0);
-    buy(_investor, msg.value * TOKEN_PRICE);
+    buy(_investor, msg.value * TOKEN_PRICE_1);
   }
 
 
@@ -98,15 +95,15 @@ contract ICO {
   // Priveleged functions
   // ====================
 
-  // This is called by our friendly robot to allow you to buy SNM for various
+  // This is called by our friendly robot to allow you to buy ZEN for various
   // cryptos.
-  function foreignBuy(address _investor, uint _snmValue, string _txHash)
+  function foreignBuy(address _investor, uint _zenValue, string _txHash)
     external robotOnly
   {
     require(icoState == IcoState.Running);
-    require(_snmValue > 0);
-    buy(_investor, _snmValue);
-    ForeignBuy(_investor, _snmValue, _txHash);
+    require(_zenValue > 0);
+    buy(_investor, _zenValue);
+    ForeignBuy(_investor, _zenValue, _txHash);
   }
 
 
@@ -149,14 +146,14 @@ contract ICO {
   {
     require(icoState == IcoState.Running || icoState == IcoState.Paused);
 
-    uint alreadyMinted = snm.totalSupply();
+    uint alreadyMinted = zen.totalSupply();
     uint totalAmount = alreadyMinted * 1110 / 889;
     // totalAmount = alreadyMinted + ecosystem + team + bounty;
 
-    snm.mint(_teamFund, 10 * totalAmount / 111);
-    snm.mint(_ecosystemFund, totalAmount / 10);
-    snm.mint(_bountyFund, totalAmount / 111);
-    snm.defrost();
+    zen.mint(_teamFund, 10 * totalAmount / 111);
+    zen.mint(_ecosystemFund, totalAmount / 10);
+    zen.mint(_bountyFund, totalAmount / 111);
+    zen.defrost();
 
     icoState = IcoState.Finished;
     FinishIco(_teamFund, _ecosystemFund, _bountyFund);
@@ -184,13 +181,13 @@ contract ICO {
   }
 
 
-  function buy(address _investor, uint _snmValue) internal {
-    uint _bonus = getBonus(_snmValue, tokensSold);
-    uint _total = _snmValue + _bonus;
+  function buy(address _investor, uint _zenValue) internal {
+    uint _bonus = getBonus(_zenValue, tokensSold);
+    uint _total = _zenValue + _bonus;
 
     require(tokensSold + _total <= TOKENS_FOR_SALE);
 
-    snm.mint(_investor, _total);
+    zen.mint(_investor, _total);
     tokensSold += _total;
   }
 
@@ -199,17 +196,5 @@ contract ICO {
     // Migration must be completed before ICO is finished, because
     // total amount of tokens must be known to calculate amounts minted for
     // funds (bounty, team, ecosystem).
-    require(icoState != IcoState.Finished);
-
-    uint _sptBalance = preICO.balanceOf(_investor);
-    require(_sptBalance > 0);
-
-    preICO.burnTokens(_investor);
-
-    // Mint extra amount of tokens for our generous early investors.
-    uint _snmValue = _sptBalance * SNM_PER_SPT;
-    snm.mint(_investor, _snmValue);
-
-    Migrate(_investor, _snmValue);
   }
 }

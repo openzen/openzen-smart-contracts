@@ -56,6 +56,6 @@ contract CrowdsaleToken is StandardToken {
    * TODO: Get date and set current price per unit of token
    */
   function getPrice() constant returns (uint result) {
-    return PRICE_1;
+    return PRICE;
   }
 }
