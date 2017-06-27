@@ -13,15 +13,19 @@ import "./StandardToken.sol";
  */
 contract CrowdsaleToken is StandardToken {
 
-  string public constant name = "CrowdsaleToken";
-  string public constant symbol = "CRW";
+  string public constant name = "ZenToken";
+  string public constant symbol = "ZTN";
   uint public constant decimals = 18;
   // replace with your fund collection multisig address
   address public constant multisig = 0x0;
 
 
   // 1 ether = 500 example tokens
-  uint public constant PRICE = 500;
+  uint public constant PRICE_1 = 8000;
+  uint public constant PRICE_2 = 7000;
+  uint public constant PRICE_3 = 6000;
+  uint public constant PRICE_4 = 5000;
+  uint public constant PRICE_5 = 4000;
 
   /**
    * @dev Fallback function which receives ether and sends the appropriate number of tokens to the 
