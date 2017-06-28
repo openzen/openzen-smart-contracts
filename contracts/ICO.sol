@@ -11,9 +11,10 @@ contract ICO {
   // =========
 
   uint public constant TOKEN_PRICE_1 = 8000; // ZEN per ETH
+  uint public constant TOKEN_PRICE_2 = 7000; // ZEN per ETH
+  uint public constant TOKEN_PRICE_3 = 6000; // ZEN per ETH
+  uint public constant TOKEN_PRICE_4 = 5000; // ZEN per ETH
   uint public constant TOKENS_FOR_SALE = 331360000 * 1e18;
-  // uint public constant ZEN_PER_SPT = 4; // Migration rate
-
 
   // Events
   // ======
