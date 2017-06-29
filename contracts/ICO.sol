@@ -65,7 +65,7 @@ contract ICO {
   function buyFor(address _investor) public payable {
     require(icoState == IcoState.Running);
     require(msg.value > 0);
-    buy(_investor, msg.value * TOKEN_PRICE_1);
+    buy(_investor, msg.value * TOKEN_PRICE_1); // Проверка на условие времени, если это 2-ая неделя, то прас менять
   }
 
 
@@ -148,8 +148,7 @@ contract ICO {
     require(icoState == IcoState.Running || icoState == IcoState.Paused);
 
     uint alreadyMinted = zen.totalSupply();
-    uint totalAmount = alreadyMinted * 1110 / 889;
-    // totalAmount = alreadyMinted + ecosystem + team + bounty;
+    uint totalAmount = alreadyMinted * 1110 / 889; // totalAmount = alreadyMinted + ecosystem + team + bounty;
 
     zen.mint(_teamFund, 10 * totalAmount / 111);
     zen.mint(_ecosystemFund, totalAmount / 10);
